@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --yellow: #F5C800;
+    --orange: #E85D04;
+    --red: #C1121F;
+    --dark: #1C1C1C;
+    --darker: #111111;
+    --cream: #FFF8EE;
+    --grey: #2A2A2A;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  ::selection { background: var(--yellow); color: var(--dark); }
+}
+
+@layer components {
+  .btn-yellow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em;
+    background: #F5C800; color: #1C1C1C; padding: 16px 32px;
+    border: 2px solid #F5C800; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-yellow:hover { background: #1C1C1C; color: #F5C800; }
+
+  .btn-dark {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em;
+    background: #1C1C1C; color: white; padding: 16px 32px;
+    border: 2px solid #1C1C1C; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-dark:hover { background: #F5C800; color: #1C1C1C; border-color: #F5C800; }
+
+  .btn-outline-white {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em;
+    background: transparent; color: white; padding: 16px 32px;
+    border: 2px solid white; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline-white:hover { background: white; color: #1C1C1C; }
+
+  .sec-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.3em; color: #E85D04;
+  }
+
+  .cat-pill {
+    padding: 10px 20px; font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    border: 2px solid #1C1C1C; background: white; color: #1C1C1C;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  }
+  .cat-pill:hover { background: #1C1C1C; color: white; }
+  .cat-pill-active { background: #F5C800 !important; color: #1C1C1C !important; border-color: #F5C800 !important; }
+
+  .nav-link {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.15em; color: rgba(255,255,255,0.7);
+    transition: color 0.15s; text-decoration: none;
+  }
+  .nav-link:hover { color: #F5C800; }
+
+  .review-card {
+    background: white; border: 2px solid rgba(28,28,28,0.1);
+    padding: 24px; transition: all 0.2s;
+  }
+  .review-card:hover { border-color: #F5C800; transform: translateY(-4px); }
+
+  .menu-row {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px dashed rgba(28,28,28,0.12);
+    padding: 14px 16px; margin: 0 -16px;
+    transition: background 0.15s;
+  }
+  .menu-row:hover { background: rgba(245,200,0,0.08); }
+  .menu-row:last-child { border-bottom: none; }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Playfair Display', serif; }
+  .font-heading { font-family: 'Bebas Neue', sans-serif; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .dot-pattern {
+    background-image: radial-gradient(circle, rgba(28,28,28,0.12) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+  }
+
+  .dot-pattern-dark {
+    background-image: radial-gradient(circle, rgba(245,200,0,0.18) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+  }
+
+  .stripe-bg {
+    background-image: repeating-linear-gradient(
+      -45deg, transparent, transparent 6px,
+      rgba(0,0,0,0.025) 6px, rgba(0,0,0,0.025) 12px
+    );
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 22s linear infinite; }
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.lift:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.13); }
