@@ -334,19 +334,48 @@ export default function AdminPanel({ onClose }) {
   // ── Main Panel ──
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div style={{ background: '#f9f9f9', width: '100%', maxWidth: 860, height: '92vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderTop: '4px solid #F5C800' }}>
+      <div style={{ background: '#f9f9f9', width: '100%', maxWidth: 860, height: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderTop: '4px solid #F5C800' }}>
 
-        {/* Header — close button pinned right, title truncates */}
-        <div style={{ background: '#1C1C1C', padding: '0 8px 0 16px', height: 52, display: 'flex', alignItems: 'center', flexShrink: 0, gap: 8 }}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 18, color: '#F5C800', letterSpacing: 2, flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+        {/* Header */}
+        <div style={{
+          background: '#1C1C1C',
+          height: 52,
+          display: 'flex',
+          alignItems: 'center',
+          flexShrink: 0,
+          overflow: 'hidden'  // ← this is the key fix
+        }}>
+          <div style={{
+            fontFamily: 'Bebas Neue',
+            fontSize: 16,
+            color: '#F5C800',
+            letterSpacing: 1.5,
+            flex: 1,
+            minWidth: 0,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            paddingLeft: 12
+          }}>
             ⚙ CHILL POINT ADMIN
           </div>
-          {/* Close button — always visible, never shrinks */}
           <button
             onClick={onClose}
-            style={{ flexShrink: 0, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, cursor: 'pointer', color: 'rgba(255,255,255,0.7)' }}
+            style={{
+              flexShrink: 0,
+              width: 52,
+              height: 52,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(255,255,255,0.08)',
+              border: 'none',
+              borderLeft: '1px solid rgba(255,255,255,0.1)',
+              cursor: 'pointer',
+              color: 'white'
+            }}
           >
-            <FiX size={18} />
+            <FiX size={22} />
           </button>
         </div>
 
