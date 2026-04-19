@@ -1,17 +1,122 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { MENU_ITEMS, SAMPLE_REVIEWS } from '../data/menuData'
+import { MENU_ITEMS, SAMPLE_REVIEWS, CATEGORIES as FALLBACK_CATEGORIES } from '../data/menuData'
 
-// Hook to fetch and manage menu items
+// -------------------------------------------------------
+// useCategories — fetches categories from Supabase
+// -------------------------------------------------------
+export function useCategories() {
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [useLocal, setUseLocal] = useState(false)
+
+  useEffect(() => { fetchCategories() }, [])
+
+  async function fetchCategories() {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      setCategories(data || [])
+    } catch (err) {
+      console.warn('Supabase categories unavailable, using local:', err.message)
+      setCategories(FALLBACK_CATEGORIES)
+      setUseLocal(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function addCategory(cat) {
+    if (useLocal) {
+      setCategories(prev => [...prev, cat])
+      return { error: null }
+    }
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([cat])
+        .select()
+      if (error) throw error
+      setCategories(prev => [...prev, data[0]])
+      return { error: null }
+    } catch (err) {
+      return { error: err }
+    }
+  }
+
+  return { categories, loading, addCategory, refetch: fetchCategories }
+}
+
+// -------------------------------------------------------
+// useAdmin — PBKDF2 password verify & change via admin_config
+// Auto-migrates plaintext passwords to hashed on first login
+// -------------------------------------------------------
+export function useAdmin() {
+  async function verifyPassword(input) {
+    try {
+      const { data, error } = await supabase
+        .from('admin_config')
+        .select('value')
+        .eq('id', 'admin_password')
+        .single()
+      if (error) throw error
+
+      const { isHashed, verifyPassword: cryptoVerify, hashPassword } = await import('../lib/crypto.js')
+
+      // ── Auto-migration: plaintext → PBKDF2 hash ──
+      if (!isHashed(data.value)) {
+        const isCorrect = input === data.value
+        if (isCorrect) {
+          // Silently upgrade to hashed format in DB
+          const { hash, salt } = await hashPassword(input)
+          await supabase
+            .from('admin_config')
+            .update({ value: JSON.stringify({ hash, salt }), updated_at: new Date().toISOString() })
+            .eq('id', 'admin_password')
+        }
+        return isCorrect
+      }
+
+      // ── Normal path: verify against stored PBKDF2 hash ──
+      const stored = JSON.parse(data.value)
+      return await cryptoVerify(input, stored)
+    } catch {
+      // Graceful fallback if Supabase is unreachable
+      return input === 'chillpoint2024'
+    }
+  }
+
+  async function changePassword(newPw) {
+    try {
+      const { hashPassword } = await import('../lib/crypto.js')
+      const { hash, salt } = await hashPassword(newPw)
+      const { error } = await supabase
+        .from('admin_config')
+        .update({ value: JSON.stringify({ hash, salt }), updated_at: new Date().toISOString() })
+        .eq('id', 'admin_password')
+      if (error) throw error
+      return { error: null }
+    } catch (err) {
+      return { error: err }
+    }
+  }
+
+  return { verifyPassword, changePassword }
+}
+
+// -------------------------------------------------------
+// useMenu — fetch and fully manage menu items
+// -------------------------------------------------------
 export function useMenu() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [useLocal, setUseLocal] = useState(false)
 
-  useEffect(() => {
-    fetchMenuItems()
-  }, [])
+  useEffect(() => { fetchMenuItems() }, [])
 
   async function fetchMenuItems() {
     try {
@@ -20,11 +125,9 @@ export function useMenu() {
         .from('menu_items')
         .select('*')
         .order('category', { ascending: true })
-
       if (error) throw error
       setItems(data || [])
     } catch (err) {
-      // Fallback to local data if Supabase not configured
       console.warn('Supabase not configured, using local data:', err.message)
       setItems(MENU_ITEMS)
       setUseLocal(true)
@@ -35,9 +138,7 @@ export function useMenu() {
 
   async function toggleAvailability(id, currentStatus) {
     if (useLocal) {
-      setItems(prev =>
-        prev.map(item => item.id === id ? { ...item, is_available: !currentStatus } : item)
-      )
+      setItems(prev => prev.map(item => item.id === id ? { ...item, is_available: !currentStatus } : item))
       return
     }
     try {
@@ -46,9 +147,7 @@ export function useMenu() {
         .update({ is_available: !currentStatus })
         .eq('id', id)
       if (error) throw error
-      setItems(prev =>
-        prev.map(item => item.id === id ? { ...item, is_available: !currentStatus } : item)
-      )
+      setItems(prev => prev.map(item => item.id === id ? { ...item, is_available: !currentStatus } : item))
     } catch (err) {
       console.error('Error toggling availability:', err)
     }
@@ -73,6 +172,25 @@ export function useMenu() {
     }
   }
 
+  async function updateMenuItem(id, updates) {
+    if (useLocal) {
+      setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item))
+      return { error: null }
+    }
+    try {
+      const { error } = await supabase
+        .from('menu_items')
+        .update(updates)
+        .eq('id', id)
+      if (error) throw error
+      setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item))
+      return { error: null }
+    } catch (err) {
+      console.error('Error updating item:', err)
+      return { error: err }
+    }
+  }
+
   async function deleteMenuItem(id) {
     if (useLocal) {
       setItems(prev => prev.filter(item => item.id !== id))
@@ -90,18 +208,18 @@ export function useMenu() {
     }
   }
 
-  return { items, loading, error, toggleAvailability, addMenuItem, deleteMenuItem, refetch: fetchMenuItems }
+  return { items, loading, toggleAvailability, addMenuItem, updateMenuItem, deleteMenuItem, refetch: fetchMenuItems }
 }
 
-// Hook for reviews
+// -------------------------------------------------------
+// useReviews — fetch and submit reviews
+// -------------------------------------------------------
 export function useReviews() {
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [useLocal, setUseLocal] = useState(false)
 
-  useEffect(() => {
-    fetchReviews()
-  }, [])
+  useEffect(() => { fetchReviews() }, [])
 
   async function fetchReviews() {
     try {
@@ -123,11 +241,7 @@ export function useReviews() {
 
   async function submitReview(review) {
     if (useLocal) {
-      const newReview = {
-        ...review,
-        id: Date.now(),
-        created_at: new Date().toISOString(),
-      }
+      const newReview = { ...review, id: Date.now(), created_at: new Date().toISOString() }
       setReviews(prev => [newReview, ...prev])
       return { error: null }
     }

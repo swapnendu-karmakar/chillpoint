@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useMenu } from '../hooks/useData'
-import { CATEGORIES } from '../data/menuData'
+import { useMenu, useCategories } from '../hooks/useData'
 
 const FUN_FACTS = [
   { emoji: '😋', title: 'The Chaat Origins', desc: "The word 'chaat' literally means 'to lick', referring to the irresistible flavours that make you want to lick your fingers clean!" },
@@ -66,10 +65,16 @@ function MenuItem({ item }) {
 
 export default function Menu() {
   const { items, loading } = useMenu()
-  const [active, setActive] = useState('chaat')
+  const { categories } = useCategories()
+  const [active, setActive] = useState('')
   const [randomItem, setRandomItem] = useState(null)
   const [factIndex, setFactIndex] = useState(0)
   const ref = useRef(null)
+
+  // Set first category once categories load
+  useEffect(() => {
+    if (categories.length && !active) setActive(categories[0].id)
+  }, [categories])
 
   function pickRandom() {
     const available = items.filter(i => i.is_available)
@@ -97,7 +102,7 @@ export default function Menu() {
   }, [])
 
   const filtered = items.filter(i => i.category === active)
-  const cat = CATEGORIES.find(c => c.id === active)
+  const cat = categories.find(c => c.id === active)
 
   return (
     <section id="menu" ref={ref} style={{ background: '#FFF8EE' }}>
@@ -120,7 +125,7 @@ export default function Menu() {
       {/* Category tabs — yellow bar */}
       <div style={{ background: '#F5C800', borderTop: '3px solid #1C1C1C', borderBottom: '3px solid #1C1C1C', position: 'sticky', top: 70, zIndex: 30 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 0, overflowX: 'auto' }} className="scrollbar-hide">
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActive(cat.id)}
