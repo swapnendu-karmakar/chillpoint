@@ -95,32 +95,19 @@ function QRCard({ qr }) {
 
   return (
     <div style={{ background: 'white', border: '2px solid #e5e5e5', overflow: 'hidden', marginBottom: 14 }}>
-      {/* Card Header */}
       <div style={{ background: '#1C1C1C', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ fontSize: 18 }}>{qr.icon}</span>
         <span style={{ fontFamily: 'Bebas Neue', fontSize: 15, color: '#F5C800', letterSpacing: 2 }}>{qr.label}</span>
       </div>
-
-      {/* QR Image + Download */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 16px', gap: 12 }}>
         <div style={{ border: '3px solid #F5C800', padding: 8, background: 'white', display: 'inline-block' }}>
-          <img
-            src={qr.file}
-            alt={qr.label}
-            style={{ width: 200, height: 200, display: 'block', objectFit: 'contain' }}
-          />
+          <img src={qr.file} alt={qr.label} style={{ width: 200, height: 200, display: 'block', objectFit: 'contain' }} />
         </div>
         <p style={{ margin: 0, fontSize: 13, color: '#888', textAlign: 'center' }}>{qr.description}</p>
         <button
           onClick={handleDownload}
           disabled={downloading}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '10px 24px', background: '#1C1C1C', color: '#F5C800',
-            border: '2px solid #1C1C1C', cursor: 'pointer', fontWeight: 700,
-            fontSize: 14, fontFamily: 'inherit', opacity: downloading ? 0.7 : 1,
-            transition: 'all 0.15s',
-          }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: '#1C1C1C', color: '#F5C800', border: '2px solid #1C1C1C', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'inherit', opacity: downloading ? 0.7 : 1, transition: 'all 0.15s' }}
         >
           <FiDownload size={15} />
           {downloading ? 'Downloading…' : 'Download PNG'}
@@ -208,6 +195,48 @@ function EditableItemRow({ item, categories, onUpdate, onDelete, onToggleAvail }
   )
 }
 
+// ── Category Row ──────────────────────────────────────────
+function CategoryRow({ cat, itemCount, onDelete }) {
+  const [deleting, setDeleting] = useState(false)
+  const [err, setErr] = useState('')
+
+  async function handleDelete() {
+    setErr('')
+    const warning = itemCount > 0
+      ? `"${cat.label}" has ${itemCount} menu item${itemCount > 1 ? 's' : ''} assigned to it.\n\nDeleting this category will NOT delete those items, but they will appear uncategorised.\n\nAre you sure you want to delete "${cat.label}"?`
+      : `Delete category "${cat.label}"? This cannot be undone.`
+
+    if (!window.confirm(warning)) return
+
+    setDeleting(true)
+    const { error } = await onDelete(cat.id)
+    setDeleting(false)
+    if (error) setErr('Failed to delete. Please try again.')
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: '1px solid #f0f0f0' }}>
+      <span style={{ fontSize: 28 }}>{cat.emoji}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 14 }}>{cat.label}</div>
+        <div style={{ fontSize: 12, color: '#888' }}>id: {cat.id}</div>
+        {err && <div style={{ fontSize: 12, color: '#ef4444', marginTop: 2 }}>{err}</div>}
+      </div>
+      <div style={{ background: '#f5f5f5', padding: '4px 10px', fontSize: 12, color: '#555', fontWeight: 600, flexShrink: 0 }}>
+        {itemCount} items
+      </div>
+      <button
+        onClick={handleDelete}
+        disabled={deleting}
+        title="Delete category"
+        style={{ padding: '8px 10px', background: 'none', border: '2px solid #fee2e2', color: '#ef4444', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', opacity: deleting ? 0.5 : 1 }}
+      >
+        <FiTrash2 size={14} />
+      </button>
+    </div>
+  )
+}
+
 // ── Main AdminPanel ───────────────────────────────────────
 export default function AdminPanel({ onClose }) {
   const [authed, setAuthed] = useState(false)
@@ -218,7 +247,7 @@ export default function AdminPanel({ onClose }) {
 
   const { verifyPassword, changePassword } = useAdmin()
   const { items, loading, toggleAvailability, addMenuItem, updateMenuItem, deleteMenuItem } = useMenu()
-  const { categories, addCategory } = useCategories()
+  const { categories, addCategory, deleteCategory } = useCategories()
 
   const [newItem, setNewItem] = useState({ name: '', category: '', price: '', is_available: true, is_popular: false, is_veg: true })
   const [adding, setAdding] = useState(false)
@@ -319,7 +348,7 @@ export default function AdminPanel({ onClose }) {
         <div style={{ display: 'flex', background: '#111', flexShrink: 0, borderBottom: '1px solid #222' }}>
           {TABS.map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: activeTab === tab.id ? '#F5C800' : 'rgba(255,255,255,0.4)', borderBottom: activeTab === tab.id ? '3px solid #F5C800' : '3px solid transparent', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, color: activeTab === tab.id ? '#F5C800' : 'rgba(255,255,255,0.4)', borderBottom: activeTab === tab.id ? '3px solid #F5C800' : '3px solid transparent', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
               <span style={{ fontSize: 18 }}>{tab.icon}</span>
               <span style={{ fontSize: 10 }}>{tab.label}</span>
             </button>
@@ -417,20 +446,20 @@ export default function AdminPanel({ onClose }) {
               </div>
 
               <div style={{ background: 'white', border: '2px solid #e5e5e5', overflow: 'hidden' }}>
-                <div style={{ background: '#1C1C1C', padding: '10px 16px' }}>
+                <div style={{ background: '#1C1C1C', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontFamily: 'Bebas Neue', fontSize: 15, color: '#F5C800', letterSpacing: 2 }}>CURRENT CATEGORIES</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{categories.length} total</span>
                 </div>
-                {categories.map((cat, i) => (
-                  <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: i < categories.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                    <span style={{ fontSize: 28 }}>{cat.emoji}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14 }}>{cat.label}</div>
-                      <div style={{ fontSize: 12, color: '#888' }}>id: {cat.id}</div>
-                    </div>
-                    <div style={{ background: '#f5f5f5', padding: '4px 10px', fontSize: 12, color: '#555', fontWeight: 600, flexShrink: 0 }}>
-                      {items.filter(it => it.category === cat.id).length} items
-                    </div>
-                  </div>
+                {categories.length === 0 && (
+                  <div style={{ padding: '14px 16px', fontSize: 13, color: '#aaa' }}>No categories yet.</div>
+                )}
+                {categories.map(cat => (
+                  <CategoryRow
+                    key={cat.id}
+                    cat={cat}
+                    itemCount={items.filter(it => it.category === cat.id).length}
+                    onDelete={deleteCategory}
+                  />
                 ))}
               </div>
             </>
@@ -439,15 +468,13 @@ export default function AdminPanel({ onClose }) {
           {/* ── TAB: QR CODES ── */}
           {activeTab === 'qrcodes' && (
             <div>
-              {/* Info banner */}
               <div style={{ display: 'flex', gap: 10, background: '#fff8e1', border: '1px solid #F5C800', padding: '10px 14px', marginBottom: 16 }}>
-                <span style={{ fontSize: 18, flexShrink: 0 }}>📲</span>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>🔍</span>
                 <p style={{ margin: 0, fontSize: 13, color: '#7a5c00', lineHeight: 1.6 }}>
                   Download and print these QR codes for your tables, counter, or marketing materials.
                   Each code links directly to the respective destination.
                 </p>
               </div>
-
               {QR_CODES.map(qr => (
                 <QRCard key={qr.id} qr={qr} />
               ))}

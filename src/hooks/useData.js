@@ -48,7 +48,25 @@ export function useCategories() {
     }
   }
 
-  return { categories, loading, addCategory, refetch: fetchCategories }
+  async function deleteCategory(id) {
+    if (useLocal) {
+      setCategories(prev => prev.filter(c => c.id !== id))
+      return { error: null }
+    }
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id)
+      if (error) throw error
+      setCategories(prev => prev.filter(c => c.id !== id))
+      return { error: null }
+    } catch (err) {
+      return { error: err }
+    }
+  }
+
+  return { categories, loading, addCategory, deleteCategory, refetch: fetchCategories }
 }
 
 // -------------------------------------------------------
@@ -71,7 +89,6 @@ export function useAdmin() {
       if (!isHashed(data.value)) {
         const isCorrect = input === data.value
         if (isCorrect) {
-          // Silently upgrade to hashed format in DB
           const { hash, salt } = await hashPassword(input)
           await supabase
             .from('admin_config')
@@ -85,7 +102,6 @@ export function useAdmin() {
       const stored = JSON.parse(data.value)
       return await cryptoVerify(input, stored)
     } catch {
-      // Graceful fallback if Supabase is unreachable
       return input === 'chillpoint2024'
     }
   }
