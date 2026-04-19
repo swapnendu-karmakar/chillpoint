@@ -22,7 +22,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{ width: 48, height: 48, background: '#F5C800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Bebas Neue', fontSize: 22, color: '#1C1C1C' }}>CP</div>
+              <img src="/favicon.png" alt="Chill Point Logo" style={{ width: 48, height: 48, objectFit: 'contain' }} />
               <div>
                 <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, color: 'white', letterSpacing: 3 }}>CHILL POINT</div>
                 <div style={{ fontSize: 9, fontWeight: 700, color: '#F5C800', letterSpacing: 4, textTransform: 'uppercase' }}>TASTE LIKE HOME</div>
@@ -31,7 +31,7 @@ export default function Footer() {
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, maxWidth: 280, marginBottom: 24 }}>
               Vadodara's favourite vegetarian street food destination. Fresh every evening, priced for everyone.
             </p>
-            <a href="https://wa.me/918866442439" target="_blank" rel="noreferrer" className="btn-yellow" style={{ fontSize: 12, padding: '12px 24px' }}>
+            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!" target="_blank" rel="noreferrer" className="btn-yellow" style={{ fontSize: 12, padding: '12px 24px' }}>
               💬 Order on WhatsApp
             </a>
           </div>
@@ -55,7 +55,7 @@ export default function Footer() {
           <div>
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 16, color: '#F5C800', letterSpacing: 3, marginBottom: 24 }}>CONTACT</div>
             <div style={{ display: 'grid', gap: 16, fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
-              <div>📍 GF Shop No. 18, Shivalaya Bliss, Taksh Aura Rd, Vadodara 390019</div>
+              <div>📍 Chill Point, GF Shop No. 18, Shivalaya Bliss, Taksh Aura Rd, N.H.8, Vadodara, Gujarat 390019</div>
               <div><a href="tel:8866442439" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>📞 +91 88664 42439</a></div>
               <div>🕐 4:30 PM – 9:30 PM (Daily)</div>
             </div>

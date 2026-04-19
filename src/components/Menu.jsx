@@ -2,6 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { useMenu } from '../hooks/useData'
 import { CATEGORIES } from '../data/menuData'
 
+const FUN_FACTS = [
+  { emoji: '😋', title: 'The Chaat Origins', desc: "The word 'chaat' literally means 'to lick', referring to the irresistible flavours that make you want to lick your fingers clean!" },
+  { emoji: '🥪', title: 'Bombay Sandwich', desc: "Created in the 1960s to offer a quick, energy-packed vegetarian meal to mill workers in Mumbai." },
+  { emoji: '🥟', title: 'Irani Puffs', desc: "Vegetable Puffs were introduced by Irani bakeries in India, blending British pastry techniques with fiery Indian spice." },
+  { emoji: '🍜', title: 'Maggi Lovers', desc: "India is the largest consumer of Maggi noodles in the world! It's the ultimate midnight comfort food for generations." },
+  { emoji: '🧊', title: 'Ice Slush', desc: "Crushed ice slushes, known locally as Barf ka Gola, became popular as a quick summer relief before commercial ice creams took over." }
+]
+
 function Skeleton() {
   return (
     <div style={{ display: 'grid', gap: 2 }}>
@@ -59,7 +67,24 @@ function MenuItem({ item }) {
 export default function Menu() {
   const { items, loading } = useMenu()
   const [active, setActive] = useState('chaat')
+  const [randomItem, setRandomItem] = useState(null)
+  const [factIndex, setFactIndex] = useState(0)
   const ref = useRef(null)
+
+  function pickRandom() {
+    const available = items.filter(i => i.is_available)
+    if (available.length) {
+      const idx = Math.floor(Math.random() * available.length)
+      setRandomItem(available[idx])
+    }
+  }
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFactIndex(p => (p + 1) % FUN_FACTS.length)
+    }, 8500)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
@@ -93,7 +118,7 @@ export default function Menu() {
       </div>
 
       {/* Category tabs — yellow bar */}
-      <div style={{ background: '#F5C800', borderTop: '3px solid #1C1C1C', borderBottom: '3px solid #1C1C1C', position: 'sticky', top: 56, zIndex: 30 }}>
+      <div style={{ background: '#F5C800', borderTop: '3px solid #1C1C1C', borderBottom: '3px solid #1C1C1C', position: 'sticky', top: 70, zIndex: 30 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 0, overflowX: 'auto' }} className="scrollbar-hide">
           {CATEGORIES.map(cat => (
             <button
@@ -163,12 +188,39 @@ export default function Menu() {
               </div>
             )}
 
-            {/* Footer note */}
-            <div style={{ marginTop: 24, paddingTop: 16, borderTop: '2px dashed rgba(28,28,28,0.12)', fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
-              * Prices may vary slightly. Call to confirm.
-            </div>
           </div>
         </div>
+
+        {/* Random Picker POPUP Modal */}
+        {randomItem && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            {/* Modal Card */}
+            <div className="animate-pop-in" style={{ background: '#111', border: '4px solid #F5C800', width: '100%', maxWidth: 420, position: 'relative', overflow: 'hidden', padding: '40px 32px' }}>
+              
+              {/* CSS Ribbon */}
+              <div className="ribbon">LUCKY PICK!</div>
+
+              {/* Close Button */}
+              <button onClick={() => setRandomItem(null)} style={{ position: 'absolute', top: 12, left: 16, background: 'none', border: 'none', fontSize: 28, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', zIndex: 30, padding: 0 }}>
+                ✕
+              </button>
+
+              <div style={{ textAlign: 'center', position: 'relative', zIndex: 10, marginTop: 16 }}>
+                <div style={{ fontSize: 64, marginBottom: 8, filter: 'drop-shadow(0 0 16px rgba(245,200,0,0.4))' }}>🎲</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 3, marginBottom: 16 }}>We picked for you</div>
+                <div style={{ fontFamily: 'Bebas Neue', fontSize: 48, color: 'white', letterSpacing: 2, lineHeight: 1 }}>{randomItem.name}</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#F5C800', margin: '16px 0 32px' }}>₹{randomItem.price}</div>
+                
+                <a href={`https://wa.me/918866442439?text=Hi%20Chill%20Point!%20I%20want%20to%20order%20one%20${encodeURIComponent(randomItem.name)}.`} target="_blank" rel="noreferrer" className="btn-yellow" style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: 14 }}>
+                  💬 Order This Now
+                </a>
+              </div>
+
+              {/* Decorative background light */}
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 200, height: 200, background: '#F5C800', filter: 'blur(80px)', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }} />
+            </div>
+          </div>
+        )}
 
         {/* CTA bar */}
         <div style={{ marginTop: 64, background: '#1C1C1C', padding: '40px clamp(24px,5vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
@@ -176,11 +228,37 @@ export default function Menu() {
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, color: '#F5C800', letterSpacing: 3, lineHeight: 1 }}>READY TO ORDER?</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>Call us or message on WhatsApp — we'll confirm your order.</div>
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <a href="tel:8866442439" className="btn-outline-white">📞 Call Now</a>
-            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!%20I%20want%20to%20order." target="_blank" rel="noreferrer" className="btn-yellow">💬 WhatsApp</a>
+          <div className="flex flex-col md:flex-row w-full md:w-auto" style={{ gap: 12 }}>
+            <button onClick={pickRandom} className="btn-outline-white" style={{ justifyContent: 'center' }}>
+              🎲 Confused what to order?
+            </button>
+            <a href="tel:8866442439" className="btn-outline-white" style={{ justifyContent: 'center' }}>📞 Call Now</a>
+            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!" target="_blank" rel="noreferrer" className="btn-yellow" style={{ justifyContent: 'center' }}>💬 WhatsApp</a>
           </div>
         </div>
+
+        {/* Fun Fact Section */}
+        <div style={{ marginTop: 24, background: '#1C1C1C', border: '1px solid rgba(255,255,255,0.05)', padding: '32px clamp(24px, 4vw, 40px)', position: 'relative', overflow: 'hidden' }}>
+          <div key={factIndex} className="animate-fade-in" style={{ display: 'flex', alignItems: 'flex-start', gap: 24, position: 'relative', zIndex: 10 }}>
+            <div style={{ width: 64, height: 64, background: '#F5C800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, flexShrink: 0, border: '4px solid #111' }}>
+              {FUN_FACTS[factIndex].emoji}
+            </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#F5C800', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 8 }}>Daily Fun Fact</div>
+              <div style={{ fontFamily: 'Bebas Neue', fontSize: 28, color: 'white', letterSpacing: 2, lineHeight: 1, marginBottom: 12 }}>
+                {FUN_FACTS[factIndex].title}
+              </div>
+              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+                {FUN_FACTS[factIndex].desc}
+              </p>
+            </div>
+          </div>
+          {/* Subtle background decoration */}
+          <div style={{ position: 'absolute', right: -20, bottom: -50, fontFamily: 'Bebas Neue', fontSize: 180, color: '#F5C800', opacity: 0.03, pointerEvents: 'none', lineHeight: 1 }}>
+            ?
+          </div>
+        </div>
+
       </div>
     </section>
   )

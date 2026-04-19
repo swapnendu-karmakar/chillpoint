@@ -12,10 +12,21 @@ const LINKS = [
 export default function Navbar() {
   const [open, setOpen]       = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50)
+    const onScroll = () => {
+      setScrolled(window.scrollY > 50)
+      
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      setScrollProgress(progress)
+    }
+    
     window.addEventListener('scroll', onScroll, { passive: true })
+    // Initial calculation
+    onScroll()
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -30,18 +41,22 @@ export default function Navbar() {
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
       background: scrolled ? '#111111' : 'transparent',
       borderBottom: scrolled ? '2px solid rgba(245,200,0,0.2)' : '2px solid transparent',
-      transition: 'all 0.3s',
+      transition: 'background 0.3s, padding 0.3s, border 0.3s',
       padding: scrolled ? '12px 0' : '20px 0',
     }}>
+      {/* Scroll Progress Bar */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, height: 3,
+        background: '#F5C800', width: `${scrollProgress}%`,
+        zIndex: 51, transition: 'width 0.1s ease-out',
+        boxShadow: '0 0 10px rgba(245,200,0,0.4)',
+      }} />
+
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
         {/* Logo */}
         <a href="#home" onClick={e => go(e, '#home')} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 44, height: 44, background: '#F5C800',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'Bebas Neue', fontSize: 20, color: '#1C1C1C',
-          }}>CP</div>
+          <img src="/favicon.png" alt="Chill Point Logo" style={{ width: 44, height: 44, objectFit: 'contain' }} />
           <div>
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, color: 'white', letterSpacing: 3, lineHeight: 1.1 }}>CHILL POINT</div>
             <div style={{ fontSize: 9, fontWeight: 700, color: '#F5C800', letterSpacing: 4, textTransform: 'uppercase' }}>TASTE LIKE HOME</div>
@@ -60,7 +75,7 @@ export default function Navbar() {
           <a href="tel:8866442439" style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: 1, textDecoration: 'none' }}>
             📞 88664 42439
           </a>
-          <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!%20I%20want%20to%20order." target="_blank" rel="noreferrer" className="btn-yellow" style={{ padding: '10px 24px', fontSize: 11 }}>
+          <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!" target="_blank" rel="noreferrer" className="btn-yellow" style={{ padding: '10px 24px', fontSize: 11 }}>
             Order Now
           </a>
         </div>
@@ -82,7 +97,7 @@ export default function Navbar() {
           ))}
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
             <a href="tel:8866442439" className="btn-outline-white" style={{ flex: 1, justifyContent: 'center', padding: '12px 16px', fontSize: 11 }}>Call Us</a>
-            <a href="https://wa.me/918866442439" target="_blank" rel="noreferrer" className="btn-yellow" style={{ flex: 1, justifyContent: 'center', padding: '12px 16px', fontSize: 11 }}>Order</a>
+            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!" target="_blank" rel="noreferrer" className="btn-yellow" style={{ flex: 1, justifyContent: 'center', padding: '12px 16px', fontSize: 11 }}>Order</a>
           </div>
         </div>
       )}

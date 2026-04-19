@@ -1,7 +1,26 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useReviews } from '../hooks/useData'
 
 export default function Hero() {
+  const { reviews } = useReviews()
+  const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0'
   const ref = useRef(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const checkOpen = () => {
+      const now = new Date()
+      const hours = now.getHours()
+      const minutes = now.getMinutes()
+      const timeInMinutes = hours * 60 + minutes
+      const openTime = 16 * 60 + 30 // 16:30
+      const closeTime = 21 * 60 + 30 // 21:30
+      setIsOpen(timeInMinutes >= openTime && timeInMinutes <= closeTime)
+    }
+    checkOpen()
+    const timer = setInterval(checkOpen, 60000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -63,8 +82,10 @@ export default function Hero() {
 
           {/* Open badge */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(245,200,0,0.12)', border: '1px solid rgba(245,200,0,0.3)', padding: '8px 18px', marginBottom: 32 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: 2 }}>Open Today · 4:30 – 9:30 PM</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: isOpen ? '#4ade80' : '#ef4444', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: 2 }}>
+              {isOpen ? 'Open Now' : 'Closed'} · 4:30 – 9:30 PM
+            </span>
           </div>
 
           {/* Big heading */}
@@ -92,14 +113,14 @@ export default function Hero() {
             <button onClick={() => scrollTo('#menu')} className="btn-yellow">
               View Menu →
             </button>
-            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!%20I%20want%20to%20order." target="_blank" rel="noreferrer" className="btn-outline-white">
+            <a href="https://wa.me/918866442439?text=Hi%20Chill%20Point!" target="_blank" rel="noreferrer" className="btn-outline-white">
               💬 WhatsApp Order
             </a>
           </div>
 
           {/* Stats row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 48, marginTop: 64, paddingTop: 40, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            {[{ n: '42+', l: 'Menu Items' }, { n: '100%', l: 'Pure Veg' }, { n: '4.9★', l: 'Rated' }].map(s => (
+            {[{ n: '42+', l: 'Menu Items' }, { n: '100%', l: 'Pure Veg' }, { n: `${avg}★`, l: 'Rated' }].map(s => (
               <div key={s.l}>
                 <div style={{ fontFamily: 'Bebas Neue', fontSize: 36, color: '#F5C800', letterSpacing: 2 }}>{s.n}</div>
                 <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{s.l}</div>

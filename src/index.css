@@ -123,3 +123,32 @@
 
 .lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .lift:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.13); }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.8); }
+  60% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+.ribbon {
+  position: absolute;
+  top: 24px;
+  right: -36px;
+  background: #F5C800;
+  color: #1C1C1C;
+  font-family: 'Bebas Neue', sans-serif;
+  padding: 6px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  transform: rotate(45deg);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 20;
+}

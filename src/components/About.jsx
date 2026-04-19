@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useReviews } from '../hooks/useData'
 
 const PILLARS = [
   { icon: '🌿', title: '100% Pure Veg', body: 'Every single item — no exceptions. Clean, vegetarian ingredients you can trust.' },
@@ -8,6 +9,8 @@ const PILLARS = [
 ]
 
 export default function About() {
+  const { reviews } = useReviews()
+  const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0'
   const ref = useRef(null)
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function About() {
           </div>
           {/* Top-right stats card */}
           <div style={{ position: 'absolute', top: 24, right: 24, background: '#1C1C1C', border: '2px solid #F5C800', padding: '16px 24px', zIndex: 2 }}>
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: 40, color: '#F5C800', letterSpacing: 2 }}>4.9★</div>
+            <div style={{ fontFamily: 'Bebas Neue', fontSize: 40, color: '#F5C800', letterSpacing: 2 }}>{avg}★</div>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 2 }}>Customer Rating</div>
           </div>
         </div>

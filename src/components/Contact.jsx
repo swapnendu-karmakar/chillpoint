@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+
 const HOURS = [
   { day: 'Monday – Friday', time: '4:30 PM – 9:30 PM' },
   { day: 'Saturday',         time: '4:30 PM – 9:30 PM' },
@@ -5,6 +7,23 @@ const HOURS = [
 ]
 
 export default function Contact() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const checkOpen = () => {
+      const now = new Date()
+      const hours = now.getHours()
+      const minutes = now.getMinutes()
+      const timeInMinutes = hours * 60 + minutes
+      const openTime = 16 * 60 + 30 // 16:30
+      const closeTime = 21 * 60 + 30 // 21:30
+      setIsOpen(timeInMinutes >= openTime && timeInMinutes <= closeTime)
+    }
+    checkOpen()
+    const timer = setInterval(checkOpen, 60000)
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <section id="contact" style={{ background: '#1C1C1C' }}>
 
@@ -30,7 +49,7 @@ export default function Contact() {
               <div>
                 <div style={{ fontFamily: 'Bebas Neue', fontSize: 18, color: '#F5C800', letterSpacing: 2, marginBottom: 10 }}>OUR ADDRESS</div>
                 <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}>
-                  GF Shop No. 18, Shivalaya Bliss,<br />
+                  Chill Point, GF Shop No. 18, Shivalaya Bliss,<br />
                   Taksh Aura Rd, N.H.8,<br />
                   Vadodara, Gujarat 390019
                 </div>
@@ -72,8 +91,8 @@ export default function Contact() {
               ))}
             </div>
             <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#16a34a', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#1C1C1C' }}>Open Today</span>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: isOpen ? '#16a34a' : '#ef4444', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#1C1C1C' }}>{isOpen ? 'Open Now' : 'Closed Now'}</span>
             </div>
           </div>
         </div>
@@ -82,7 +101,7 @@ export default function Contact() {
         <div style={{ border: '3px solid rgba(255,255,255,0.1)', overflow: 'hidden', height: 480 }}>
           <iframe
             title="Chill Point Location"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.9940!2d73.1812!3d22.3272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fc5b0d5e7c3d5%3A0x5c09a6e7c9b1d3f7!2sShivalaya%20Bliss%2C%20Vadodara%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1709999999999!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.065435829163!2d73.26052757529297!3d22.31336487967725!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fcfb3150d58b9%3A0x8d86038b151c4228!2sChill%20Point!5e0!3m2!1sen!2sin!4v1776589736883!5m2!1sen!2sin"
             width="100%" height="100%"
             style={{ border: 0, filter: 'grayscale(20%) contrast(1.1)' }}
             allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"
