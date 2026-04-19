@@ -205,9 +205,7 @@ function CategoryRow({ cat, itemCount, onDelete }) {
     const warning = itemCount > 0
       ? `"${cat.label}" has ${itemCount} menu item${itemCount > 1 ? 's' : ''} assigned to it.\n\nDeleting this category will NOT delete those items, but they will appear uncategorised.\n\nAre you sure you want to delete "${cat.label}"?`
       : `Delete category "${cat.label}"? This cannot be undone.`
-
     if (!window.confirm(warning)) return
-
     setDeleting(true)
     const { error } = await onDelete(cat.id)
     setDeleting(false)
@@ -338,18 +336,26 @@ export default function AdminPanel({ onClose }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div style={{ background: '#f9f9f9', width: '100%', maxWidth: 860, height: '92vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderTop: '4px solid #F5C800' }}>
 
-        {/* Header */}
-        <div style={{ background: '#1C1C1C', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 20, color: '#F5C800', letterSpacing: 3 }}>⚙ CHILL POINT ADMIN</div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: 4 }}><FiX size={20} /></button>
+        {/* Header — close button pinned right, title truncates */}
+        <div style={{ background: '#1C1C1C', padding: '0 8px 0 16px', height: 52, display: 'flex', alignItems: 'center', flexShrink: 0, gap: 8 }}>
+          <div style={{ fontFamily: 'Bebas Neue', fontSize: 18, color: '#F5C800', letterSpacing: 2, flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+            ⚙ CHILL POINT ADMIN
+          </div>
+          {/* Close button — always visible, never shrinks */}
+          <button
+            onClick={onClose}
+            style={{ flexShrink: 0, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, cursor: 'pointer', color: 'rgba(255,255,255,0.7)' }}
+          >
+            <FiX size={18} />
+          </button>
         </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', background: '#111', flexShrink: 0, borderBottom: '1px solid #222' }}>
           {TABS.map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, color: activeTab === tab.id ? '#F5C800' : 'rgba(255,255,255,0.4)', borderBottom: activeTab === tab.id ? '3px solid #F5C800' : '3px solid transparent', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-              <span style={{ fontSize: 18 }}>{tab.icon}</span>
+              style={{ flex: 1, padding: '10px 4px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, color: activeTab === tab.id ? '#F5C800' : 'rgba(255,255,255,0.4)', borderBottom: activeTab === tab.id ? '3px solid #F5C800' : '3px solid transparent', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 16 }}>{tab.icon}</span>
               <span style={{ fontSize: 10 }}>{tab.label}</span>
             </button>
           ))}
